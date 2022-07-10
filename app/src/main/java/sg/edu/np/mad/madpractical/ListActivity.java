@@ -1,7 +1,11 @@
 package sg.edu.np.mad.madpractical;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,44 +13,45 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.util.ArrayList;
+
 public class ListActivity extends AppCompatActivity {
+
+    ArrayList<User> users = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
 
-        ImageView imageView = findViewById(R.id.profileImageView);
+        for (int i = 1; i <= 20; i++) {
 
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(ListActivity.this);
-                builder.setTitle("Profile");
-                builder.setMessage("MADness");
-                builder.setPositiveButton("View", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // Present MainActivity, pass over random number
-                        Intent mainActivity = new Intent(ListActivity.this, MainActivity.class);
+            int randomID = (int) Math.round(Math.random() * 1000000);
+            String randomNameSuffix = String.valueOf((int) Math.round(Math.random() * 1000000));
+            String randomDescriptionSuffix = String.valueOf((int) Math.round(Math.random() * 100000000));
 
-                        int randomNumber = (int) Math.round(Math.random() * 1000000);
+            users.add(new User("User " + randomNameSuffix, "This is a description. Here's a random number! " + randomDescriptionSuffix, randomID, Math.random() > 0.5));
+        }
 
-                        mainActivity.putExtra("RandomNumber", randomNumber);
+        RecyclerView userRecyclerView = findViewById(R.id.recyclerView);
+        RecyclerView.Adapter mAdapter = new UserAdapter(users, this);
 
-                        startActivity(mainActivity);
-                    }
-                });
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(
+                this,
+                LinearLayoutManager.VERTICAL,
+                false);
 
-                builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                });
+        userRecyclerView.setLayoutManager(mLayoutManager);
+        userRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        userRecyclerView.setAdapter(mAdapter);
+    }
 
-                AlertDialog alertDialog = builder.create();
-                alertDialog.show();
-            }
-        });
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        User user = users.get(requestCode);
+        user.followed = data.getBooleanExtra("followed", user.followed);
     }
 }

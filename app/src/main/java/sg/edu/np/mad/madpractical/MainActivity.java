@@ -11,18 +11,24 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    User user = new User("Potato", "Hello hello hello hello hello", 1, true);
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent recevingEnd = getIntent();
-        Integer message = recevingEnd.getIntExtra("RandomNumber", 0);
+        Intent intents = getIntent();
+
+        String name = intents.getStringExtra("name");
+        String description = intents.getStringExtra("description");
+        Integer id = intents.getIntExtra("id", 0);
+        Boolean followed = intents.getBooleanExtra("followed", false);
+
+        user = new User(name, description, id, followed);
 
         TextView usernameTextView = (TextView)findViewById(R.id.usernameTextView);
-        usernameTextView.setText(user.name + " " + message);
+        usernameTextView.setText(user.name);
 
         TextView descriptionTextView = (TextView)findViewById(R.id.descriptionTextView);
         descriptionTextView.setText(user.description);
@@ -37,6 +43,11 @@ public class MainActivity extends AppCompatActivity {
                 Button followButton = (Button) view;
                 followButton.setText(user.followed ? "Unfollow" : "Follow");
                 Toast.makeText(getApplicationContext(),user.followed ? "Followed" : "Unfollowed",Toast.LENGTH_SHORT).show();
+
+                Intent data = new Intent();
+                data.putExtra("followed", user.followed);
+
+                setResult(RESULT_OK, data);
             }
         });
 
